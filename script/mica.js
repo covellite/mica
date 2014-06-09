@@ -4,7 +4,8 @@
     $.fn.mica = function (o) {
         var d = {
             top: 100,
-            overlay: 0.5
+            overlay: 0.5,
+            closeButton: null
         },
             fo = $.extend({}, d, o);
 
@@ -28,6 +29,11 @@
                         "opacity": "0"
                     })
                     .fadeTo(200, fo.overlay)
+                    .click(function () {
+                        close_modal(modal_id);
+                    });
+
+                $(fo.closeButton)
                     .click(function () {
                         close_modal(modal_id);
                     });
