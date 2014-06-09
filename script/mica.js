@@ -10,18 +10,27 @@
 
         $("body").append('<div id="overlay"></div>');
 
+        function close_modal(modal_id) {
+            $('#overlay').fadeOut(200);
+            $(modal_id).css({
+                "display" : "none"
+            });
+        }
+
         return this.each(function () {
             $(this).click(function (e) {
                 var modal_id = $(this).attr("href"),
-                    modal_width = $(modal_id).outerWidth(),
-                    modal_height = $(modal_id).outerHeight();
+                    modal_width = $(modal_id).outerWidth();
 
                 $('#overlay')
                     .css({
                         "display": "block",
                         "opacity": "0"
                     })
-                    .fadeTo(200, fo.overlay);
+                    .fadeTo(200, fo.overlay)
+                    .click(function () {
+                        close_modal(modal_id);
+                    });
 
                 $(modal_id)
                     .css({
