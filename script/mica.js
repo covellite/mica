@@ -12,10 +12,13 @@
         $("body").append('<div id="overlay"></div>');
 
         function close_modal(modal_id) {
-            $('#overlay').fadeOut(200);
-            $(modal_id).css({
-                "display" : "none"
-            });
+            $('#overlay')
+                .fadeOut(200);
+
+            $(modal_id)
+                .css({
+                    "display" : "none"
+                });
         }
 
         return this.each(function () {
