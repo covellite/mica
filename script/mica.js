@@ -15,33 +15,38 @@
             $('#overlay')
                 .fadeOut(200);
 
-            $(modal_id)
-                .css({
-                    "display" : "none"
-                });
+            if (modal_id != '#modal') {
+                $(modal_id)
+                    .css({
+                        "display" : "none"
+                    });
+            } else {
+                $(modal_id).remove();
+            }
         }
 
         return this.each(function () {
             $(this).click(function (e) {
 
+                $('#overlay')
+                    .css({
+                        "display": "block",
+                        "opacity": "0"
+                    })
+                    .fadeTo(200, fo.overlay)
+                    .click(function () {
+                        close_modal(modal_id);
+                    });
+
+                $(fo.closeButton)
+                    .click(function () {
+                        close_modal(modal_id);
+                    });
+
+                // ID
                 if ($(this).attr("href").match(/^#.+/)) {
                     var modal_id = $(this).attr("href"),
                         modal_width = $(modal_id).outerWidth();
-
-                    $('#overlay')
-                        .css({
-                            "display": "block",
-                            "opacity": "0"
-                        })
-                        .fadeTo(200, fo.overlay)
-                        .click(function () {
-                            close_modal(modal_id);
-                        });
-
-                    $(fo.closeButton)
-                        .click(function () {
-                            close_modal(modal_id);
-                        });
 
                     $(modal_id)
                         .css({
@@ -57,42 +62,38 @@
 
                     e.preventDefault();
 
+                    // 画像
                 } else {
+
                     if ($("#modal").size() == 0) {
                         $('body').append('<div id="modal"></div>');
                     }
 
                     var modal_id = '#modal';
-
-                    $(modal_id).append('<img src="' + $(this).attr("href") + '" alt="" />');
-
-                    $('#overlay')
-                        .css({
-                            "display": "block",
-                            "opacity": "0"
-                        })
-                        .fadeTo(200, fo.overlay)
-                        .click(function () {
-                            close_modal(modal_id);
-                        });
-
-                    $(fo.closeButton)
-                        .click(function () {
-                            close_modal(modal_id);
-                        });
-
                     $(modal_id)
-                        .css({
-                            "position": "fixed",
-                            "opacity": "0",
-                            "z-index": "10000",
-                            "top": fo.top + "px",
-                            "left": "50%"
-                        })
-                        .fadeTo(200, 1);
+                        .html('')
+                        .html('<img src="' + $(this).attr("href") + '" alt="" />');
 
+                    $(modal_id).find('img').bind('load', function(){
+
+                        var mw = $(modal_id).find('img').width();
+
+                        $(modal_id)
+                            .css({
+                                "position": "fixed",
+                                "opacity": "0",
+                                "z-index": "10000",
+                                "top": fo.top + "px",
+                                "left": "50%",
+                                "margin-left": -(mw / 2) + "px"
+                            })
+                            .fadeTo(200, 1);
+
+                    });
                     e.preventDefault();
+
                 }
+
             });
         });
     };
