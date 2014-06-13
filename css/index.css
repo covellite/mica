@@ -8,16 +8,6 @@
   background-color: #FFF;
 }
 
-#test2 {
-  display: none;
-  width: 400px;
-  height: 300px;
-  border-radius: 5px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  background-color: #FFD;
-}
-
 #overlay {
   position: fixed;
   z-index: 9999;
