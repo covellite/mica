@@ -1,31 +1,49 @@
-(function ($) {
+;(function ($) {
     'use strict';
 
     $.fn.mica = function (o) {
         var d = {
-            top: 100,
-            overlay: 0.7,
-            closeButton: null
+            top: 0,
+            modalMarginW: 50,
+            modalMarginH: 30,
+            modalBorder: 5,
+            overlay: 0.8,
+            closeButton: null,
+            modalContentsId: '#modal',
+            imgWrapId: '#modalInner',
+            navigation: true
         },
-            fo = $.extend({}, d, o);
+            fo = $.extend({}, d, o),
+            modal_img_id,
+            modal_id,
+            group,
+            classArray,
+            ww,
+            wh,
+            mw,
+            mh,
+            clickElm,
+            displaynum,
+            thisClass;
 
         $("body").append('<div id="overlay"></div>');
 
-        function close_modal(modal_id) {
+        function closeModal(id) {
             $('#overlay')
                 .fadeOut(200);
 
-            if (modal_id != '#modal') {
-                $(modal_id)
+            if (id != fo.modalContentsId) {
+                $(id)
                     .css({
                         "display" : "none"
                     });
             } else {
-                $(modal_id).remove();
+                $(id).remove();
             }
         }
 
         return this.each(function () {
+
             $(this).click(function (e) {
 
                 $('#overlay')
@@ -34,62 +52,158 @@
                         "opacity": "0"
                     })
                     .fadeTo(200, fo.overlay)
-                    .click(function () {
-                        close_modal(modal_id);
+                    .bind('click', function () {
+                        closeModal(modal_id);
                     });
 
                 $(fo.closeButton)
-                    .click(function () {
-                        close_modal(modal_id);
+                    .bind('click', function () {
+                        closeModal(modal_id);
                     });
 
-                // ID
                 if ($(this).attr("href").match(/^#.+/)) {
-                    var modal_id = $(this).attr("href"),
-                        modal_width = $(modal_id).outerWidth();
+                // ID
+                    modal_id = $(this).attr("href");
+                    mw = $(modal_id).outerWidth();
+                    mh = $(modal_id).outerHeight();
+                    wh = $(window).height() - fo.modalMarginH * 2;
+
+                    fo.top = (wh - mh) / 2;
 
                     $(modal_id)
                         .css({
-                            "display": "block",
                             "position": "fixed",
                             "opacity": "0",
                             "z-index": "10000",
-                            "top": fo.top + "px",
+                            "top": fo.top + fo.modalMarginH + "px",
                             "left": "50%",
-                            "margin-left": -(modal_width / 2) + "px"
+                            "margin-left": -(mw / 2) + "px"
                         })
                         .fadeTo(200, 1);
 
                     e.preventDefault();
 
-                    // 画像
                 } else {
+                // 画像
+                    modal_id = fo.modalContentsId;
+                    modal_img_id = fo.imgWrapId;
+                    group = $(this).attr('class');
 
-                    if ($("#modal").size() == 0) {
-                        $('body').append('<div id="modal"></div>');
+                    if ($(modal_id).size() == 0) {
+                        $('body').append('<div id="modal"><div id="modalInner"></div></div>');
                     }
 
-                    var modal_id = '#modal';
-                    $(modal_id)
-                        .html('')
+                    $(modal_img_id)
                         .html('<img src="' + $(this).attr("href") + '" alt="" />');
 
-                    $(modal_id).find('img').bind('load', function(){
+                    classArray = group.split(' ');
+                    for (var i in classArray) {
+                        if (classArray[i].indexOf('mica-') == 0){
+                            thisClass = classArray[i];
+                            break;
+                        }
+                    }
 
-                        var mw = $(modal_id).find('img').width();
+                    displaynum = $('.' + thisClass).index($(this));
+
+
+                    $(modal_img_id).find('img').bind('load', function () {
+
+                        $(this)
+                            .css({
+                                "width": 'auto',
+                                "height": 'auto'
+                            });
+                        mw = $(modal_id).find('img').width();
+                        mh = $(modal_id).find('img').height();
+                        ww = $(window).width() - (fo.modalMarginW + fo.modalBorder) * 2;
+                        wh = $(window).height() - (fo.modalMarginH + fo.modalBorder) * 2;
+
+                        if (ww >= mw && wh >= mh) {
+                            mw = mw;
+                            mh = mh;
+                        } else if (ww < mw) {
+                            if (wh >= mh) {
+                                if (mw / ww >= mh / wh) {
+                                    console.log(1);
+                                } else {
+                                    console.log(2);
+                                }
+                                mh = Math.floor(ww * mh / mw);
+                                mw = ww;
+                            } else {
+                                if (mw / ww >= mh / wh) {
+                                    mh = Math.floor(mh / (mw / ww));
+                                    mw = ww;
+                                } else {
+                                    mw = Math.floor(mw / (mh / wh));
+                                    mh = wh;
+                                }
+                            }
+                        } else {
+                            mw = Math.floor(wh * mw / mh);
+                            mh = wh;
+                        }
+
+                        $(this)
+                            .css({
+                                "width": mw + 'px',
+                                "height": mh + 'px'
+                            });
+
+                        fo.top = (wh - mh) / 2;
+
+                        if (fo.navigation) {
+                            $(fo.modalContentsId).find('#prev').remove();
+                            $(fo.modalContentsId).find('#next').remove();
+                            $(fo.modalContentsId).append('<div id="prev" class="navigation">prev</div><div id="next" class="navigation">next</div>');
+
+                            $("#prev").css({
+                                "top": mh / 2 - $("#prev").height() / 2 + 'px'
+                            });
+                            $("#next").css({
+                                "top": mh / 2 - $("#next").height() / 2 + 'px'
+                            });
+
+                            $('#prev')
+                                .bind('click', function(){
+                                    if (displaynum == 0) {
+                                        $(modal_img_id).find('img').attr('src', $('.' + thisClass).eq($('.' + thisClass).length - 1).attr('href'));
+                                        displaynum = $('.' + thisClass).length - 1;
+                                   } else {
+                                        $(modal_img_id).find('img').attr('src', $('.' + thisClass).eq(displaynum - 1).attr('href'));
+                                        displaynum = displaynum - 1;
+                                   }
+                                })
+
+                            $('#next')
+                                .bind('click', function(){
+                                    if (displaynum == $('.' + thisClass).length - 1) {
+                                        $(modal_img_id).find('img').attr('src', $('.' + thisClass).eq(0).attr('href'));
+                                        displaynum = 0;
+                                    } else {
+                                        $(modal_img_id).find('img').attr('src', $('.' + thisClass).eq(displaynum + 1).attr('href'));
+                                        displaynum = displaynum + 1;
+                                    }
+                                })
+                        }
 
                         $(modal_id)
                             .css({
                                 "position": "fixed",
                                 "opacity": "0",
                                 "z-index": "10000",
-                                "top": fo.top + "px",
+                                "top": fo.top + fo.modalMarginH + "px",
                                 "left": "50%",
-                                "margin-left": -(mw / 2) + "px"
+                                "border": fo.modalBorder + "px solid #FFF",
+                                "margin-left": -((mw + fo.modalBorder * 2)  / 2) + "px"
                             })
                             .fadeTo(200, 1);
 
+
                     });
+
+
                     e.preventDefault();
 
                 }
