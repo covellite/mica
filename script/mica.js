@@ -3,7 +3,7 @@
 
     $.fn.mica = function (o) {
         var d = {
-            top: 0,
+            top: '',
             modalMarginW: 50,
             modalMarginH: 30,
             modalBorder: 5,
@@ -114,6 +114,8 @@
                                 "width": 'auto',
                                 "height": 'auto'
                             });
+
+                        // 表示サイズ計算
                         mw = $(modal_id).find('img').width();
                         mh = $(modal_id).find('img').height();
                         ww = $(window).width() - (fo.modalMarginW + fo.modalBorder) * 2;
@@ -124,11 +126,6 @@
                             mh = mh;
                         } else if (ww < mw) {
                             if (wh >= mh) {
-                                if (mw / ww >= mh / wh) {
-                                    console.log(1);
-                                } else {
-                                    console.log(2);
-                                }
                                 mh = Math.floor(ww * mh / mw);
                                 mw = ww;
                             } else {
@@ -151,8 +148,23 @@
                                 "height": mh + 'px'
                             });
 
+                        // モーダルスタイル
                         fo.top = (wh - mh) / 2;
 
+                        $(modal_id)
+                            .css({
+                                "position": "fixed",
+                                "opacity": "0",
+                                "z-index": "10000",
+                                "top": fo.top + fo.modalMarginH + "px",
+                                "left": "50%",
+                                "border": fo.modalBorder + "px solid #FFF",
+                                "margin-left": -((mw + fo.modalBorder * 2)  / 2) + "px"
+                            })
+                            .fadeTo(200, 1);
+
+
+                        // PREV・NEXT
                         if (fo.navigation) {
                             $(fo.modalContentsId).find('#prev').remove();
                             $(fo.modalContentsId).find('#next').remove();
@@ -187,18 +199,6 @@
                                     }
                                 })
                         }
-
-                        $(modal_id)
-                            .css({
-                                "position": "fixed",
-                                "opacity": "0",
-                                "z-index": "10000",
-                                "top": fo.top + fo.modalMarginH + "px",
-                                "left": "50%",
-                                "border": fo.modalBorder + "px solid #FFF",
-                                "margin-left": -((mw + fo.modalBorder * 2)  / 2) + "px"
-                            })
-                            .fadeTo(200, 1);
 
 
                     });
